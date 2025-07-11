@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "ota_update.h"
 #include "http_server.h"
-#include "custom_handlers.h"
 #include "wifi_init.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
@@ -26,9 +25,6 @@ void app_main(void)
     wifi_init_task();
     ESP_LOGI(TAG, "WiFi initialization started in background");
 
-    ESP_LOGI(TAG, "Application ready - WiFi connecting in background");
-
-    // Wait for WiFi connection before starting HTTP server and services
     bool http_server_started = false;
     while (1)
     {
@@ -57,18 +53,6 @@ void app_main(void)
                     else
                     {
                         ESP_LOGE(TAG, "Failed to initialize OTA service");
-                    }
-
-                    // Initialize custom handlers for future development
-                    ret = custom_handlers_init();
-                    if (ret == ESP_OK)
-                    {
-                        ESP_LOGI(TAG, "Custom handlers initialized");
-                        ESP_LOGI(TAG, "Web interface available at: http://%s", ip_str);
-                    }
-                    else
-                    {
-                        ESP_LOGE(TAG, "Failed to initialize custom handlers");
                     }
 
                     http_server_started = true;
