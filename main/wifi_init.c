@@ -1,5 +1,7 @@
 #include "wifi_init.h"
 #include "wifi_config.h"
+#include "http_server.h"
+#include "ota_update.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -12,6 +14,7 @@ static const char *TAG = "wifi_init";
 static EventGroupHandle_t s_wifi_event_group;
 static volatile wifi_status_t s_wifi_status = WIFI_STATUS_DISCONNECTED;
 static esp_netif_t *s_sta_netif = NULL;
+static bool s_http_server_started = false;
 
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
@@ -33,6 +36,15 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         ESP_LOGW(TAG, "WiFi disconnected (reason: %d), will retry in %d seconds",
                  event->reason, WIFI_RECONNECT_DELAY_MS / 1000);
         s_wifi_status = WIFI_STATUS_DISCONNECTED;
+
+        // Stop HTTP server when WiFi disconnects
+        if (s_http_server_started)
+        {
+            ESP_LOGI(TAG, "Stopping HTTP server due to WiFi disconnection");
+            http_server_stop();
+            s_http_server_started = false;
+        }
+
         xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
@@ -40,6 +52,34 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "WiFi connected! IP: " IPSTR, IP2STR(&event->ip_info.ip));
         s_wifi_status = WIFI_STATUS_CONNECTED;
+
+        // Start HTTP server and services when WiFi connects
+        if (!s_http_server_started)
+        {
+            ESP_LOGI(TAG, "Starting HTTP server...");
+            esp_err_t ret = http_server_init();
+            if (ret == ESP_OK)
+            {
+                ESP_LOGI(TAG, "HTTP server started successfully");
+                s_http_server_started = true;
+
+                // Initialize OTA functionality
+                ret = ota_init();
+                if (ret == ESP_OK)
+                {
+                    ESP_LOGI(TAG, "OTA service initialized");
+                }
+                else
+                {
+                    ESP_LOGE(TAG, "Failed to initialize OTA service");
+                }
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(ret));
+            }
+        }
+
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
@@ -222,4 +262,9 @@ bool wifi_get_ip_address(char *ip_str, size_t ip_str_len)
     }
 
     return false;
+}
+
+bool wifi_is_http_server_running(void)
+{
+    return s_http_server_started && (s_wifi_status == WIFI_STATUS_CONNECTED);
 }

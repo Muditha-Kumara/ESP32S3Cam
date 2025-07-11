@@ -20,4 +20,7 @@ wifi_status_t wifi_get_status(void);
 // Get WiFi IP address (returns true if connected and IP is available)
 bool wifi_get_ip_address(char *ip_str, size_t ip_str_len);
 
+// Check if HTTP server is running
+bool wifi_is_http_server_running(void);
+
 #endif // WIFI_INIT_H

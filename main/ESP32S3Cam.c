@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include "ota_update.h"
-#include "http_server.h"
 #include "wifi_init.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
@@ -24,46 +22,30 @@ void app_main(void)
     // Initialize WiFi as a background task (non-blocking)
     wifi_init_task();
     ESP_LOGI(TAG, "WiFi initialization started in background");
+    ESP_LOGI(TAG, "HTTP server will start automatically when WiFi connects");
 
-    bool http_server_started = false;
+    // Main application loop - can add other tasks here
     while (1)
     {
         wifi_status_t status = wifi_get_status();
 
-        // Start HTTP server and services only once when WiFi connects
-        if (status == WIFI_STATUS_CONNECTED && !http_server_started)
+        if (status == WIFI_STATUS_CONNECTED)
         {
-            char ip_str[16];
-            if (wifi_get_ip_address(ip_str, sizeof(ip_str)))
+            if (wifi_is_http_server_running())
             {
-                ESP_LOGI(TAG, "WiFi Connected (IP: %s)", ip_str);
-
-                // Start HTTP server
-                esp_err_t ret = http_server_init();
-                if (ret == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "HTTP server started successfully");
-
-                    // Initialize OTA functionality
-                    ret = ota_init();
-                    if (ret == ESP_OK)
-                    {
-                        ESP_LOGI(TAG, "OTA service initialized");
-                    }
-                    else
-                    {
-                        ESP_LOGE(TAG, "Failed to initialize OTA service");
-                    }
-
-                    http_server_started = true;
-                }
-                else
-                {
-                    ESP_LOGE(TAG, "Failed to start HTTP server");
-                }
+                // Application is fully running
+                // You can add other periodic tasks here
             }
         }
+        else if (status == WIFI_STATUS_CONNECTING)
+        {
+            ESP_LOGI(TAG, "WiFi connecting...");
+        }
+        else
+        {
+            ESP_LOGI(TAG, "WiFi disconnected, waiting for connection...");
+        }
 
-        vTaskDelay(pdMS_TO_TICKS(10000)); // Check every 10 seconds
+        vTaskDelay(pdMS_TO_TICKS(30000)); // Check every 30 seconds
     }
 }
