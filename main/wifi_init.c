@@ -1,10 +1,8 @@
 #include "wifi_init.h"
+#include "wifi_config.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "freertos/event_groups.h"
-
-#define WIFI_SSID "SLEngineers"
-#define WIFI_PASS "slengnet1"
 
 static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_CONNECTED_BIT BIT0

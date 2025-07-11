@@ -110,4 +110,5 @@ dependencies.lock
 ehthumbs.db
 Thumbs.db
 
-
+# WiFi Configuration (contains sensitive credentials)
+main/wifi_config.h

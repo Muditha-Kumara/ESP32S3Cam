@@ -1,0 +1,14 @@
+#ifndef WIFI_CONFIG_H
+#define WIFI_CONFIG_H
+
+// WiFi Configuration Template
+// Copy this file to wifi_config.h and update with your actual credentials
+#ifndef WIFI_SSID
+#define WIFI_SSID "your_wifi_ssid_here"
+#endif
+
+#ifndef WIFI_PASS
+#define WIFI_PASS "your_wifi_password_here"
+#endif
+
+#endif // WIFI_CONFIG_H
