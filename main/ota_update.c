@@ -1,4 +1,5 @@
 #include "ota_update.h"
+#include "http_server.h"
 #include "esp_log.h"
 #include "esp_http_server.h"
 #include "esp_ota_ops.h"
@@ -64,19 +65,63 @@ esp_err_t ota_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-void start_ota_update(void)
+esp_err_t ota_init(void)
 {
-    httpd_handle_t server = NULL;
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    ESP_LOGI(TAG, "Initializing OTA functionality...");
 
-    httpd_start(&server, &config);
-
+    // Define the OTA URI handler
     httpd_uri_t ota_uri = {
         .uri = "/ota",
         .method = HTTP_POST,
         .handler = ota_handler,
         .user_ctx = NULL};
 
-    httpd_register_uri_handler(server, &ota_uri);
-    ESP_LOGI(TAG, "OTA update server started");
+    // Register the OTA handler with the HTTP server
+    esp_err_t ret = http_server_register_handler(&ota_uri);
+    if (ret == ESP_OK)
+    {
+        ESP_LOGI(TAG, "OTA handler registered successfully");
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Failed to register OTA handler: %s", esp_err_to_name(ret));
+    }
+
+    return ret;
+}
+
+esp_err_t ota_deinit(void)
+{
+    ESP_LOGI(TAG, "Deinitializing OTA functionality...");
+
+    esp_err_t ret = http_server_unregister_handler("/ota", HTTP_POST);
+    if (ret == ESP_OK)
+    {
+        ESP_LOGI(TAG, "OTA handler unregistered successfully");
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Failed to unregister OTA handler: %s", esp_err_to_name(ret));
+    }
+
+    return ret;
+}
+
+void start_ota_update(void)
+{
+    ESP_LOGI(TAG, "Starting OTA update service (legacy function)...");
+
+    // Start the HTTP server if not already running
+    if (http_server_get_status() != HTTP_SERVER_RUNNING)
+    {
+        esp_err_t ret = http_server_init();
+        if (ret != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to start HTTP server for OTA");
+            return;
+        }
+    }
+
+    // Initialize OTA functionality
+    ota_init();
 }
