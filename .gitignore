@@ -4,7 +4,7 @@ sdkconfig.old
 sdkconfig.backup
 
 # IDE and Editor files
-.vscode/
+# .vscode/
 .idea/
 *.swp
 *.swo

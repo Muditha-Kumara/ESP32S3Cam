@@ -1,0 +1,22 @@
+{
+  "terminal.integrated.env.linux": {
+    "IDF_PATH": "/home/muditha/esp/v5.4.1/esp-idf"
+  },
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.adapterTargetName": "esp32s3",
+  "idf.customExtraPaths": "/home/muditha/.espressif/tools/xtensa-esp-elf/esp-14.2.0_20241119/xtensa-esp-elf/bin:/home/muditha/.espressif/tools/esp32ulp-elf/2.38_20240113/esp32ulp-elf/bin:/home/muditha/.espressif/tools/cmake/3.24.0/bin:/home/muditha/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/bin:/home/muditha/.espressif/tools/ninja/1.10.2:/home/muditha/.espressif/tools/idf-exe/1.0.3:/home/muditha/.espressif/tools/ccache/4.8/ccache-4.8-linux-x86_64:/home/muditha/.espressif/tools/dfu-util/0.11/dfu-util-0.11-linux-amd64/bin:/home/muditha/.espressif/tools/esp-rom-elfs/20240305",
+  "idf.espIdfPath": "/home/muditha/esp/v5.4.1/esp-idf",
+  "idf.pythonBinPath": "/home/muditha/.espressif/python_env/idf5.4_py3.12_env/bin/python",
+  "idf.toolsPath": "/home/muditha/.espressif",
+  "idf.openOcdConfigs": [
+    "interface/ftdi/esp32_devkitj_v1.cfg",
+    "target/esp32s3.cfg"
+  ],
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "/home/muditha/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+    "ESP_ROM_ELF_DIR": "/home/muditha/.espressif/tools/esp-rom-elfs/20240305/",
+    "IDF_TARGET": "esp32s3"
+  },
+  "idf.port": "/dev/ttyACM0",
+  "idf.customTask": "./ota.sh build-and-update"
+}
